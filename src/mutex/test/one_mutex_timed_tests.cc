@@ -16,6 +16,22 @@ public:
     }
 };
 
+/**
+ * Use two threads that try to acquire the same mutex and see if the second
+ * one blocks.
+ *
+ * Timeline (in seconds):
+ *    0: start thread 1 that grabs the lock and sleeps for 3 seconds
+ *    1: start thread 2 that tries to grab the lock and set the bool variable
+ *    2: expect that thread 2 didn't get the lock and the bool variable is
+ *       unset
+ *    3: thread 1 releases the lock and ends
+ *       thread 2 gets the lock, sets the flag and ends
+ *       test case ends
+ *
+ * Note: Regardless if the mutual exclusion works, this test should take
+ * 3 seconds (and a little more) to execute.
+ */
 TEST_F(OneMutexTimedTests, two_threads_access_same_mutex_second_blocks)
 {
     std::atomic<bool> thread2_got_lock(false);

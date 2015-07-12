@@ -20,3 +20,10 @@ Required
 Required
 
   * Implementation using C++11 atomics
+
+# condition variable
+
+Required
+
+  * Implementation
+  * Tests

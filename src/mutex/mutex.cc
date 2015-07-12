@@ -1,6 +1,12 @@
 #include "mutex.hh"
 
+#include "exception.hh"
 #include "futex.hh"
+
+#include <sstream>
+
+#include <errno.h>
+#include <string.h>
 
 namespace lthread
 {
@@ -27,7 +33,18 @@ void mutex::lock()
 
         while (c != LOCK_FREE)
         {
-            futex_wait(&val);
+            int futex_return_value = futex_wait(&val);
+            if (futex_return_value == -1)
+            {
+                std::ostringstream ostream;
+                ostream << "futex_wait() failed with"
+                        << errno
+                        << " - "
+                        << strerror(errno);
+
+                throw lthread::exception(ostream.str());
+            }
+
             c = __sync_lock_test_and_set(&val, LOCK_TAKEN_WAITERS);
         }
     }
@@ -38,7 +55,17 @@ void mutex::unlock()
     if (__sync_fetch_and_sub(&val, 1) != LOCK_TAKEN)
     {
         val = LOCK_FREE;
-        futex_wake_one(&val);
+
+        if (futex_wake_one(&val) == -1)
+        {
+            std::ostringstream ostream;
+            ostream << "futex_wake() failed with"
+                    << errno
+                    << " - "
+                    << strerror(errno);
+
+            throw lthread::exception(ostream.str());
+        }
     }
 }
 

@@ -7,6 +7,7 @@ target_link_libraries(OneMutexTimedTests
     ${GTEST_BOTH_LIBRARIES}
     mutex
     futex
+    exception
     pthread
     )
 

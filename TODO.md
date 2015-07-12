@@ -27,3 +27,9 @@ Required
 
   * Implementation
   * Tests
+
+# thread
+
+Required
+
+  * Implementation inspired by [Chris Wellons' blog post](http://nullprogram.com/blog/2015/05/15/)

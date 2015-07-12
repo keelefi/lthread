@@ -14,3 +14,9 @@ Required
   * Support for robust mutexes
   * x86 assembly implementation
   * ARMv8 assembly implementation using LDA/STL
+
+# spinlock
+
+Required
+
+  * Implementation using C++11 atomics

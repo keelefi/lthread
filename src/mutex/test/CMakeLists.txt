@@ -6,6 +6,7 @@ add_executable(OneMutexTimedTests
 target_link_libraries(OneMutexTimedTests
     ${GTEST_BOTH_LIBRARIES}
     mutex
+    futex
     pthread
     )
 

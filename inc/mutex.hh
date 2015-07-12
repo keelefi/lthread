@@ -11,6 +11,9 @@ public:
 
     void lock();
     void unlock();
+
+private:
+    int val;
 };
 
 } // namespace lthread

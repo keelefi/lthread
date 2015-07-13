@@ -1,19 +1,19 @@
-## General
+# General
 
-# Documentation
+## Documentation
 
   * All missing
 
-## Features
+# Features
 
-# futex
+## futex
 
 Required
 
   * Support for priority inheritance mutexes
   * Support for robust mutexes
 
-# mutex
+## mutex
 
 Required
 
@@ -23,20 +23,20 @@ Required
   * x86 assembly implementation
   * ARMv8 assembly implementation using LDA/STL
 
-# spinlock
+## spinlock
 
 Required
 
   * Implementation using C++11 atomics
 
-# condition variable
+## condition variable
 
 Required
 
   * Implementation
   * Tests
 
-# thread
+## thread
 
 Required
 

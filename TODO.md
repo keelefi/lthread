@@ -10,6 +10,10 @@
   * Run tests with helgrind
   * Write usage instructions to run tests using valgrind/helgrind
 
+## Continuous integration
+
+  * Run tests for each commit before accepting it to master (maybe Travis CI?)
+
 # Features
 
 ## futex

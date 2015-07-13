@@ -37,7 +37,7 @@ void mutex::lock()
             if (futex_return_value == -1)
             {
                 std::ostringstream ostream;
-                ostream << "futex_wait() failed with"
+                ostream << "futex_wait() failed with "
                         << errno
                         << " - "
                         << strerror(errno);

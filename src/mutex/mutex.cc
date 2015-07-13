@@ -36,6 +36,9 @@ void mutex::lock()
             int futex_return_value = futex_wait(&val);
             if (futex_return_value == -1)
             {
+                // TODO: strerror() is not thread-safe. But simply replacing it
+                // with strerror_r() is not what we want. Come up with a better
+                // idea. Maybe use C++11 STL to print the error?
                 std::ostringstream ostream;
                 ostream << "futex_wait() failed with "
                         << errno
@@ -58,6 +61,9 @@ void mutex::unlock()
 
         if (futex_wake_one(&val) == -1)
         {
+            // TODO: strerror() is not thread-safe. But simply replacing it
+            // with strerror_r() is not what we want. Come up with a better
+            // idea. Maybe use C++11 STL to print the error?
             std::ostringstream ostream;
             ostream << "futex_wake() failed with"
                     << errno

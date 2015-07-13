@@ -4,6 +4,12 @@
 
   * All missing
 
+## Testing
+
+  * Figure out a way to run all tests at once
+  * Run tests with helgrind
+  * Write usage instructions to run tests using valgrind/helgrind
+
 # Features
 
 ## futex

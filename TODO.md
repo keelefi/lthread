@@ -16,7 +16,7 @@
 
 ## Compatibility with the C++11 standard template library
 
-  * Check if std::unique_lock<lthread::mutex> is possible
+  * Check if `std::unique_lock<lthread::mutex>` is possible
 
 # Features
 

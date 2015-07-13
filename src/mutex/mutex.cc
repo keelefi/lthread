@@ -4,9 +4,8 @@
 #include "futex.hh"
 
 #include <sstream>
+#include <system_error>
 
-#include <errno.h>
-#include <string.h>
 
 namespace lthread
 {
@@ -36,14 +35,13 @@ void mutex::lock()
             int futex_return_value = futex_wait(&val);
             if (futex_return_value == -1)
             {
-                // TODO: strerror() is not thread-safe. But simply replacing it
-                // with strerror_r() is not what we want. Come up with a better
-                // idea. Maybe use C++11 STL to print the error?
+                std::error_code e(errno, std::system_category());
+
                 std::ostringstream ostream;
-                ostream << "futex_wait() failed with "
-                        << errno
+                ostream << "futex_wait() failed with: "
+                        << e.value()
                         << " - "
-                        << strerror(errno);
+                        << e.message();
 
                 throw lthread::exception(ostream.str());
             }
@@ -61,14 +59,13 @@ void mutex::unlock()
 
         if (futex_wake_one(&val) == -1)
         {
-            // TODO: strerror() is not thread-safe. But simply replacing it
-            // with strerror_r() is not what we want. Come up with a better
-            // idea. Maybe use C++11 STL to print the error?
+            std::error_code e(errno, std::system_category());
+
             std::ostringstream ostream;
-            ostream << "futex_wake() failed with"
-                    << errno
+            ostream << "futex_wait() failed with: "
+                    << e.value()
                     << " - "
-                    << strerror(errno);
+                    << e.message();
 
             throw lthread::exception(ostream.str());
         }

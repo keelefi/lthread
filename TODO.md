@@ -14,6 +14,10 @@
 
   * Run tests for each commit before accepting it to master (maybe Travis CI?)
 
+## Compatibility with the C++11 standard template library
+
+  * Check if std::unique_lock<lthread::mutex> is possible
+
 # Features
 
 ## futex

@@ -1,6 +1,5 @@
 add_executable(OneMutexTimedTests
     one_mutex_timed_tests.cc
-    ../mutex.cc
     )
 
 target_link_libraries(OneMutexTimedTests

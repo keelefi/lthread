@@ -16,4 +16,9 @@ int futex_wake_one(int *uaddr);
 
 int futex_wake_many(int *uaddr, int val);
 
+/* PI futexes */
+
+int futex_wait_pi(int *uaddr);
+int futex_wake_pi(int *uaddr);
+
 } // namespace lthread

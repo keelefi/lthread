@@ -53,4 +53,30 @@ int futex_wake_many(int *uaddr, int val)
     return futex_wake(uaddr, val);
 }
 
+/* PI futexes */
+
+int futex_wait_pi(int *uaddr)
+{
+    return syscall(
+            SYS_futex,
+            uaddr,
+            FUTEX_LOCK_PI,
+            0,
+            NULL,
+            NULL,
+            0);
+}
+
+int futex_wake_pi(int *uaddr)
+{
+    return syscall(
+            SYS_futex,
+            uaddr,
+            FUTEX_UNLOCK_PI,
+            0,
+            NULL,
+            NULL,
+            0);
+}
+
 } // namespace lthread

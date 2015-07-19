@@ -13,7 +13,7 @@ public:
     void unlock();
 
 private:
-    int val;
+    int m_val;
 };
 
 } // namespace lthread

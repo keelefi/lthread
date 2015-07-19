@@ -11,7 +11,7 @@ namespace lthread
 {
 
 mutex::mutex() :
-        val(LOCK_FREE)
+        m_val(LOCK_FREE)
 {
 }
 
@@ -22,17 +22,17 @@ mutex::~mutex()
 void mutex::lock()
 {
     int c;
-    if ((c = __sync_val_compare_and_swap(&val, LOCK_FREE, LOCK_TAKEN))
+    if ((c = __sync_val_compare_and_swap(&m_val, LOCK_FREE, LOCK_TAKEN))
             != LOCK_FREE)
     {
         if (c != LOCK_TAKEN_WAITERS)
         {
-            c = __sync_lock_test_and_set(&val, LOCK_TAKEN_WAITERS);
+            c = __sync_lock_test_and_set(&m_val, LOCK_TAKEN_WAITERS);
         }
 
         while (c != LOCK_FREE)
         {
-            int futex_return_value = futex_wait(&val);
+            int futex_return_value = futex_wait(&m_val);
             if (futex_return_value == -1)
             {
                 std::error_code e(errno, std::system_category());
@@ -46,18 +46,18 @@ void mutex::lock()
                 throw lthread::exception(ostream.str());
             }
 
-            c = __sync_lock_test_and_set(&val, LOCK_TAKEN_WAITERS);
+            c = __sync_lock_test_and_set(&m_val, LOCK_TAKEN_WAITERS);
         }
     }
 }
 
 void mutex::unlock()
 {
-    if (__sync_fetch_and_sub(&val, 1) != LOCK_TAKEN)
+    if (__sync_fetch_and_sub(&m_val, 1) != LOCK_TAKEN)
     {
-        val = LOCK_FREE;
+        m_val = LOCK_FREE;
 
-        if (futex_wake_one(&val) == -1)
+        if (futex_wake_one(&m_val) == -1)
         {
             std::error_code e(errno, std::system_category());
 

@@ -11,7 +11,14 @@ namespace lthread
 {
 
 mutex::mutex() :
-        m_val(LOCK_FREE)
+        m_val(LOCK_FREE),
+        m_pi(false)
+{
+}
+
+mutex::mutex(bool pi) :
+        m_val(LOCK_FREE),
+        m_pi(pi)
 {
 }
 
@@ -20,6 +27,38 @@ mutex::~mutex()
 }
 
 void mutex::lock()
+{
+    if (m_pi)
+    {
+        lock_pi();
+    }
+    else
+    {
+        lock_nonpi();
+    }
+}
+
+void mutex::unlock()
+{
+    if (m_pi)
+    {
+        unlock_pi();
+    }
+    else
+    {
+        unlock_nonpi();
+    }
+}
+
+void mutex::lock_pi()
+{
+}
+
+void mutex::unlock_pi()
+{
+}
+
+void mutex::lock_nonpi()
 {
     int c;
     while ((c = __sync_val_compare_and_swap(&m_val, LOCK_FREE, LOCK_TAKEN))
@@ -61,7 +100,7 @@ void mutex::lock()
     }
 }
 
-void mutex::unlock()
+void mutex::unlock_nonpi()
 {
     if (__sync_fetch_and_sub(&m_val, 1) != LOCK_TAKEN)
     {

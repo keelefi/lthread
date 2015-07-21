@@ -62,7 +62,7 @@ void mutex::unlock()
             std::error_code e(errno, std::system_category());
 
             std::ostringstream ostream;
-            ostream << "futex_wait() failed with: "
+            ostream << "futex_wake() failed with: "
                     << e.value()
                     << " - "
                     << e.message();

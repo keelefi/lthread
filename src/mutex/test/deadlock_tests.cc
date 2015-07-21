@@ -48,7 +48,7 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
     catch (lthread::exception &e)
     {
         EXPECT_STREQ(
-                "futex_wait() failed with 35 - Resource deadlock avoided",
+                "futex_wait() failed with: 35 - Resource deadlock avoided",
                 e.what());
     }
 }

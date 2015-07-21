@@ -12,7 +12,7 @@ public:
     lthread::mutex m_mutexA;
 
     DeadlockTests() :
-            m_mutexA()
+            m_mutexA(true)
     {
     }
 };

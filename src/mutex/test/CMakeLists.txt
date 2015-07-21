@@ -6,6 +6,7 @@ target_link_libraries(OneMutexNonTimedTests
     ${GTEST_BOTH_LIBRARIES}
     mutex
     futex
+    gettid
     exception
     pthread
     )
@@ -18,6 +19,7 @@ target_link_libraries(OneMutexTimedTests
     ${GTEST_BOTH_LIBRARIES}
     mutex
     futex
+    gettid
     exception
     pthread
     )
@@ -30,6 +32,7 @@ target_link_libraries(DeadlockTests
     ${GTEST_BOTH_LIBRARIES}
     mutex
     futex
+    gettid
     exception
     pthread
     )

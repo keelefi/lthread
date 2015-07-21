@@ -20,6 +20,12 @@
 
 # Features
 
+## thread local storage
+
+Required
+
+  * Implementation
+
 ## futex
 
 Required

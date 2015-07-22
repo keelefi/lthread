@@ -22,7 +22,7 @@ mutex::~mutex()
 void mutex::lock()
 {
     int c;
-    if ((c = __sync_val_compare_and_swap(&m_val, LOCK_FREE, LOCK_TAKEN))
+    while ((c = __sync_val_compare_and_swap(&m_val, LOCK_FREE, LOCK_TAKEN))
             != LOCK_FREE)
     {
         if (c != LOCK_TAKEN_WAITERS)
@@ -35,6 +35,11 @@ void mutex::lock()
             int futex_return_value = futex_wait(&m_val);
             if (futex_return_value == -1)
             {
+                if (errno == EAGAIN)
+                {
+                    break ;
+                }
+
                 std::error_code e(errno, std::system_category());
 
                 std::ostringstream ostream;
@@ -47,6 +52,11 @@ void mutex::lock()
             }
 
             c = __sync_lock_test_and_set(&m_val, LOCK_TAKEN_WAITERS);
+        }
+
+        if (c == LOCK_FREE)
+        {
+            break ;
         }
     }
 }

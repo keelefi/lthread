@@ -37,6 +37,6 @@ target_link_libraries(DeadlockTests
     pthread
     )
 
-GTEST_ADD_TESTS(OneMutexNonTimedTests "" one_mutex_non-timed_tests.cc)
-GTEST_ADD_TESTS(OneMutexTimedTests "" one_mutex_timed_tests.cc)
-GTEST_ADD_TESTS(DeadlockTests "" deadlock_tests.cc)
+add_test(OneMutexNonTimedTests OneMutexNonTimedTests)
+add_test(OneMutexTimedTests OneMutexTimedTests)
+add_test(DeadlockTests DeadlockTests)

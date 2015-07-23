@@ -12,3 +12,7 @@ anyone wanting to learn about synchronization primitives. You can think of the
 	cmake ..
 	cd ..
 	make -Cbin
+
+# Running tests
+
+    make -Cbin test

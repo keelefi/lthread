@@ -38,5 +38,8 @@ target_link_libraries(DeadlockTests
     )
 
 add_test(OneMutexNonTimedTests OneMutexNonTimedTests)
+add_test(OneMutexNonTimedTests-valgrind valgrind ./OneMutexNonTimedTests)
 add_test(OneMutexTimedTests OneMutexTimedTests)
+add_test(OneMutexTimedTests-valgrind valgrind ./OneMutexTimedTests)
 add_test(DeadlockTests DeadlockTests)
+add_test(DeadlockTests-valgrind valgrind ./DeadlockTests)

@@ -50,6 +50,9 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
                 "futex_wait() failed with: 35 - Resource deadlock avoided",
                 e.what());
     }
+
+    // clean-up
+    m_mutexA.unlock();
 }
 
 /**

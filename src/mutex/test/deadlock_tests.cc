@@ -21,10 +21,6 @@ public:
  * Lock the same mutex twice without unlocking in between. The first lock() must
  * not throw an exception, but the second lock() should throw an exception
  * indicating a deadlock.
- *
- * Note: this test is currently broken, because Linux checks for deadlocks only
- * when priority inheritance mutexes are used. Our futex implementation doesn't
- * yet support PI mutexes.
  */
 TEST_F(DeadlockTests, AA_deadlock_throws_exception)
 {

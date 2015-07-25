@@ -25,8 +25,8 @@ public:
  */
 TEST_F(OneMutexNonTimedTests, one_hundred_threads_update_same_variable)
 {
-    int thread_count = 100;
-    int increments_per_thread = 10000;
+    unsigned int thread_count = 100;
+    unsigned int increments_per_thread = 10000;
     std::vector<std::thread> threads;
     int variable = 0;
 
@@ -71,8 +71,8 @@ TEST_F(OneMutexNonTimedTests, one_hundred_threads_update_same_variable)
 }
 TEST_F(OneMutexNonTimedTests, one_hundred_threads_update_same_variable_pi)
 {
-    int thread_count = 40;
-    int increments_per_thread = 100;
+    unsigned int thread_count = 40;
+    unsigned int increments_per_thread = 100;
     std::vector<std::thread> threads;
     int variable = 0;
 

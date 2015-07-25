@@ -11,14 +11,14 @@
 class DeadlockTests: public testing::Test
 {
 public:
-    lthread::mutex m_mutexA;
-    lthread::mutex m_mutexB;
-    lthread::mutex m_mutexC;
+    lthread::mutex m_mutex1;
+    lthread::mutex m_mutex2;
+    lthread::mutex m_mutex3;
 
     DeadlockTests() :
-            m_mutexA(true),
-            m_mutexB(true),
-            m_mutexC(true)
+            m_mutex1(true),
+            m_mutex2(true),
+            m_mutex3(true)
     {
     }
 };
@@ -85,7 +85,7 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
 {
     try
     {
-        m_mutexA.lock();
+        m_mutex1.lock();
     }
     catch (lthread::exception& e)
     {
@@ -95,7 +95,7 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
 
     try
     {
-        m_mutexA.lock();
+        m_mutex1.lock();
 
         // fail test if we reach here
         ASSERT_TRUE(false);
@@ -108,11 +108,11 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
     }
 
     // clean-up
-    m_mutexA.unlock();
+    m_mutex1.unlock();
 }
 
 /**
- * Lock the mutexes A and B from two different threads, in different order.
+ * Lock the mutexes 1 and 2 from two different threads, in different order.
  * Both threads lock their first mutexes and then signal the main thread. Once
  * the main thread sees the indication from each one of the threads, it signals
  * back that the threads are free to lock the second mutexes. The first thread
@@ -123,46 +123,46 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
  * Which thread will fail the deadlock is random. One possible scenario is the
  * following:
  *
- *      thread1                 thread2
+ *      threadA                 threadB
  *      -------                 -------
- *      lock A
- *                              lock B
- *      lock B (wait here)
- *                              lock A (deadlock)   
+ *      lock 1
+ *                              lock 2
+ *      lock 2 (wait here)
+ *                              lock 1 (deadlock)   
  */
 TEST_F(DeadlockTests, ABBA_deadlock_throws_exception)
 {
-    std::promise<bool> promise_from_1;
-    std::promise<bool> promise_from_2;
+    std::promise<bool> promise_from_A;
+    std::promise<bool> promise_from_B;
 
-    std::promise<bool> promise_for_1;
-    std::promise<bool> promise_for_2;
+    std::promise<bool> promise_for_A;
+    std::promise<bool> promise_for_B;
 
     std::atomic<bool> fail(false);
 
-    std::thread thread1(
+    std::thread threadA(
             lock_mutex_and_signal_and_wait_and_try_locking_second,
-            std::ref(m_mutexA),
-            std::ref(m_mutexB),
-            std::ref(promise_from_1),
-            promise_for_1.get_future(),
+            std::ref(m_mutex1),
+            std::ref(m_mutex2),
+            std::ref(promise_from_A),
+            promise_for_A.get_future(),
             std::ref(fail));
-    std::thread thread2(
+    std::thread threadB(
             lock_mutex_and_signal_and_wait_and_try_locking_second,
-            std::ref(m_mutexB),
-            std::ref(m_mutexA),
-            std::ref(promise_from_2),
-            promise_for_2.get_future(),
+            std::ref(m_mutex2),
+            std::ref(m_mutex1),
+            std::ref(promise_from_B),
+            promise_for_B.get_future(),
             std::ref(fail));
 
-    promise_from_1.get_future().wait();
-    promise_from_2.get_future().wait();
+    promise_from_A.get_future().wait();
+    promise_from_B.get_future().wait();
 
-    promise_for_1.set_value(true);
-    promise_for_2.set_value(true);
+    promise_for_A.set_value(true);
+    promise_for_B.set_value(true);
 
-    thread1.join();
-    thread2.join();
+    threadA.join();
+    threadB.join();
 
     EXPECT_EQ(fail.load(std::memory_order_seq_cst), true);
 }
@@ -172,49 +172,49 @@ TEST_F(DeadlockTests, ABBA_deadlock_throws_exception)
  */
 TEST_F(DeadlockTests, three_threads_deadlock_throws_exception)
 {
-    std::promise<bool> promise_from_1;
-    std::promise<bool> promise_from_2;
-    std::promise<bool> promise_from_3;
+    std::promise<bool> promise_from_A;
+    std::promise<bool> promise_from_B;
+    std::promise<bool> promise_from_C;
 
-    std::promise<bool> promise_for_1;
-    std::promise<bool> promise_for_2;
-    std::promise<bool> promise_for_3;
+    std::promise<bool> promise_for_A;
+    std::promise<bool> promise_for_B;
+    std::promise<bool> promise_for_C;
 
     std::atomic<bool> fail(false);
 
-    std::thread thread1(
+    std::thread threadA(
             lock_mutex_and_signal_and_wait_and_try_locking_second,
-            std::ref(m_mutexA),
-            std::ref(m_mutexB),
-            std::ref(promise_from_1),
-            promise_for_1.get_future(),
+            std::ref(m_mutex1),
+            std::ref(m_mutex2),
+            std::ref(promise_from_A),
+            promise_for_A.get_future(),
             std::ref(fail));
-    std::thread thread2(
+    std::thread threadB(
             lock_mutex_and_signal_and_wait_and_try_locking_second,
-            std::ref(m_mutexB),
-            std::ref(m_mutexC),
-            std::ref(promise_from_2),
-            promise_for_2.get_future(),
+            std::ref(m_mutex2),
+            std::ref(m_mutex3),
+            std::ref(promise_from_B),
+            promise_for_B.get_future(),
             std::ref(fail));
-    std::thread thread3(
+    std::thread threadC(
             lock_mutex_and_signal_and_wait_and_try_locking_second,
-            std::ref(m_mutexC),
-            std::ref(m_mutexA),
-            std::ref(promise_from_3),
-            promise_for_3.get_future(),
+            std::ref(m_mutex3),
+            std::ref(m_mutex1),
+            std::ref(promise_from_C),
+            promise_for_C.get_future(),
             std::ref(fail));
 
-    promise_from_1.get_future().wait();
-    promise_from_2.get_future().wait();
-    promise_from_3.get_future().wait();
+    promise_from_A.get_future().wait();
+    promise_from_B.get_future().wait();
+    promise_from_C.get_future().wait();
 
-    promise_for_1.set_value(true);
-    promise_for_2.set_value(true);
-    promise_for_3.set_value(true);
+    promise_for_A.set_value(true);
+    promise_for_B.set_value(true);
+    promise_for_C.set_value(true);
 
-    thread1.join();
-    thread2.join();
-    thread3.join();
+    threadA.join();
+    threadB.join();
+    threadC.join();
 
     EXPECT_EQ(fail.load(std::memory_order_seq_cst), true);
 }

@@ -13,10 +13,12 @@ class DeadlockTests: public testing::Test
 public:
     lthread::mutex m_mutexA;
     lthread::mutex m_mutexB;
+    lthread::mutex m_mutexC;
 
     DeadlockTests() :
             m_mutexA(true),
-            m_mutexB(true)
+            m_mutexB(true),
+            m_mutexC(true)
     {
     }
 };
@@ -161,6 +163,58 @@ TEST_F(DeadlockTests, ABBA_deadlock_throws_exception)
 
     thread1.join();
     thread2.join();
+
+    EXPECT_EQ(fail.load(std::memory_order_seq_cst), true);
+}
+
+/**
+ * Like the ABBA deadlock test, but with 3 threads and 3 mutexes.
+ */
+TEST_F(DeadlockTests, three_threads_deadlock_throws_exception)
+{
+    std::promise<bool> promise_from_1;
+    std::promise<bool> promise_from_2;
+    std::promise<bool> promise_from_3;
+
+    std::promise<bool> promise_for_1;
+    std::promise<bool> promise_for_2;
+    std::promise<bool> promise_for_3;
+
+    std::atomic<bool> fail(false);
+
+    std::thread thread1(
+            lock_mutex_and_signal_and_wait_and_try_locking_second,
+            std::ref(m_mutexA),
+            std::ref(m_mutexB),
+            std::ref(promise_from_1),
+            promise_for_1.get_future(),
+            std::ref(fail));
+    std::thread thread2(
+            lock_mutex_and_signal_and_wait_and_try_locking_second,
+            std::ref(m_mutexB),
+            std::ref(m_mutexC),
+            std::ref(promise_from_2),
+            promise_for_2.get_future(),
+            std::ref(fail));
+    std::thread thread3(
+            lock_mutex_and_signal_and_wait_and_try_locking_second,
+            std::ref(m_mutexC),
+            std::ref(m_mutexA),
+            std::ref(promise_from_3),
+            promise_for_3.get_future(),
+            std::ref(fail));
+
+    promise_from_1.get_future().wait();
+    promise_from_2.get_future().wait();
+    promise_from_3.get_future().wait();
+
+    promise_for_1.set_value(true);
+    promise_for_2.set_value(true);
+    promise_for_3.set_value(true);
+
+    thread1.join();
+    thread2.join();
+    thread3.join();
 
     EXPECT_EQ(fail.load(std::memory_order_seq_cst), true);
 }

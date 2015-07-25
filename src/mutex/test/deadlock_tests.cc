@@ -136,7 +136,6 @@ TEST_F(DeadlockTests, ABBA_deadlock_throws_exception)
     std::promise<bool> promise_for_1;
     std::promise<bool> promise_for_2;
 
-    std::atomic<int> firsts_locked(0);
     std::atomic<bool> fail(false);
 
     std::thread thread1(

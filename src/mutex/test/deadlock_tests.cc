@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 
+#include <atomic>
 #include <future>
 #include <thread>
 
@@ -19,6 +20,59 @@ public:
     {
     }
 };
+
+static void lock_mutex_and_signal_and_wait_and_try_locking_second(
+        lthread::mutex& mutex_first,
+        lthread::mutex& mutex_second,
+        std::promise<bool>& promise,
+        std::future<bool> future,
+        std::atomic<bool>& fail)
+{
+    try
+    {
+        mutex_first.lock();
+    }
+    catch (lthread::exception& e)
+    {
+        // fail test if we reach here
+        ASSERT_TRUE(false);
+    }
+
+    promise.set_value(true);
+    future.wait();
+    // TODO: Does set_value() imply a release memory barrier and wait() imply
+    // an acquire memory barrier or could the locking of the first/second mutex
+    // jump downwards/upwards, respectively?
+
+    bool second_lock_succeeded = false;
+    try
+    {
+        mutex_second.lock();
+
+        second_lock_succeeded = true;
+    }
+    catch (lthread::exception& e)
+    {
+        if (fail.exchange(true, std::memory_order_seq_cst))
+        {
+            // Deadlock was detected already previously. Fail the test.
+            ASSERT_TRUE(false);
+        }
+        else
+        {
+            EXPECT_STREQ(
+                    "futex_wait() failed with: 35 - Resource deadlock avoided",
+                    e.what());
+        }
+    }
+
+    if (second_lock_succeeded)
+    {
+        mutex_second.unlock();
+    }
+
+    mutex_first.unlock();
+}
 
 /**
  * Lock the same mutex twice without unlocking in between. The first lock() must
@@ -57,9 +111,15 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
 
 /**
  * Lock the mutexes A and B from two different threads, in different order.
- * First thread1 locks A, then thread2 locks B. Now, thread1 tries to lock B
- * after which upon thread2 trying to lock A will receive an exception
- * indicating a deadlock.
+ * Both threads lock their first mutexes and then signal the main thread. Once
+ * the main thread sees the indication from each one of the threads, it signals
+ * back that the threads are free to lock the second mutexes. The first thread
+ * to react will block on trying to lock the second mutex. The second thread to
+ * react will fail the mutex lock() operation with an exception indicating
+ * deadlock avoidance.
+ *
+ * Which thread will fail the deadlock is random. One possible scenario is the
+ * following:
  *
  *      thread1                 thread2
  *      -------                 -------
@@ -67,95 +127,43 @@ TEST_F(DeadlockTests, AA_deadlock_throws_exception)
  *                              lock B
  *      lock B (wait here)
  *                              lock A (deadlock)   
- *
- * Note: This implementation uses sleep_for(). It would be nice to somehow get
- * rid of that.
  */
 TEST_F(DeadlockTests, ABBA_deadlock_throws_exception)
 {
     std::promise<bool> promise_from_1;
     std::promise<bool> promise_from_2;
 
-    std::future<bool> future_for_2 = promise_from_1.get_future();
-    std::future<bool> future_for_1 = promise_from_2.get_future();
+    std::promise<bool> promise_for_1;
+    std::promise<bool> promise_for_2;
 
+    std::atomic<int> firsts_locked(0);
+    std::atomic<bool> fail(false);
+
+    std::thread thread1(
+            lock_mutex_and_signal_and_wait_and_try_locking_second,
+            std::ref(m_mutexA),
+            std::ref(m_mutexB),
+            std::ref(promise_from_1),
+            promise_for_1.get_future(),
+            std::ref(fail));
     std::thread thread2(
-            [this, &promise_from_2, &future_for_2]
-            {
-                future_for_2.wait();
+            lock_mutex_and_signal_and_wait_and_try_locking_second,
+            std::ref(m_mutexB),
+            std::ref(m_mutexA),
+            std::ref(promise_from_2),
+            promise_for_2.get_future(),
+            std::ref(fail));
 
-                try
-                {
-                    m_mutexB.lock();
-                }
-                catch (lthread::exception& e)
-                {
-                    // fail test if we reach here
-                    ASSERT_TRUE(false);
-                }
+    promise_from_1.get_future().wait();
+    promise_from_2.get_future().wait();
 
-                std::cout << "thread2 locked B" << std::endl;
+    promise_for_1.set_value(true);
+    promise_for_2.set_value(true);
 
-                promise_from_2.set_value(true);
-
-                // Wait for thread1 to start waiting for mutex B.
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-
-                std::cout << "thread2 trying to lock A" << std::endl;
-
-                try
-                {
-                    m_mutexA.lock();
-
-                    // fail test if we reach here
-                    ASSERT_TRUE(false);
-                }
-                catch (lthread::exception& e)
-                {
-                    EXPECT_STREQ(
-                            "futex_wait() failed with: 35 - Resource deadlock "
-                                    "avoided",
-                            e.what());
-
-                    m_mutexB.unlock();
-
-                    std::cout << "thread2 unlocked B" << std::endl;
-                }
-            });
-
-    try
-    {
-        m_mutexA.lock();
-    }
-    catch (lthread::exception& e)
-    {
-        // fail test if we reach here
-        ASSERT_TRUE(false);
-    }
-
-    std::cout << "thread1 locked A" << std::endl;
-
-    promise_from_1.set_value(true);
-    future_for_1.wait();
-
-    std::cout << "thread1 trying to lock B" << std::endl;
-
-    try
-    {
-        m_mutexB.lock();
-    }
-    catch (lthread::exception &e)
-    {
-        // Even though we deadlocked, we shouldn't reach here since thread2
-        // catched the exception and unlocks B. Therefore, if we reach here we
-        // fail the test.
-        ASSERT_TRUE(false);
-    }
-
-    // clean-up
+    thread1.join();
     thread2.join();
-    m_mutexB.unlock();
-    m_mutexA.unlock();
+
+    EXPECT_EQ(fail.load(std::memory_order_seq_cst), true);
 }
 
 int main(int argc, char **argv)

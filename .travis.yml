@@ -1,0 +1,12 @@
+language: cpp
+
+compiler:
+  - gcc
+
+script:
+  - mkdir bin
+  - cd bin
+  - cmake ..
+  - cd ..
+  - make -Cbin
+  - make -Cbin test

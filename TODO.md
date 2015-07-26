@@ -36,6 +36,9 @@ Required
 
   * Error-handling: Separate EDEADLK somehow so that it's easy for the user to act accordingly
   * Support for robust mutexes
+
+Optional
+
   * x86 assembly implementation
   * ARMv8 assembly implementation using LDA/STL
 

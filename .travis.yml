@@ -3,6 +3,16 @@ language: cpp
 compiler:
   - gcc
 
+before_install:
+  - sudo apt-get -qq update
+
+install:
+  - sudo apt-get -qq install libgtest-dev
+  - cd /usr/src/gtest
+  - sudo cmake .
+  - sudo make
+  - sudo mv libg* /usr/lib/
+
 script:
   - mkdir bin
   - cd bin

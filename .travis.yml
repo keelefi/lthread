@@ -8,10 +8,12 @@ before_install:
 
 install:
   - sudo apt-get -qq install libgtest-dev
+  - GIT_REPOSITORY=$(pwd)
   - cd /usr/src/gtest
   - sudo cmake .
   - sudo make
   - sudo mv libg* /usr/lib/
+  - cd $GIT_REPOSITORY
 
 script:
   - mkdir bin

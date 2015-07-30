@@ -55,4 +55,6 @@ Required
 
 Required
 
-  * Implementation inspired by [Chris Wellons' blog post](http://nullprogram.com/blog/2015/05/15/)
+  * Implementation inspired by Chris Wellons' blog post
+    [Raw Linux Threads via System Calls](http://nullprogram.com/blog/2015/05/15/)
+    (May 15, 2015. Last retrieved: July 30, 2015)

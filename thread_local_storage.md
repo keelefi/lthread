@@ -16,3 +16,9 @@ contain:
   * A guard area set with `mprotect(2)` to `PROT_NONE` so that if the stack
     grows over we get a `SIGSEGV` if our stack overflows.
   * Thread local storage area.
+
+## How to access the TLS
+
+On x86 pthread seems to implement retrieving of TLS data using the machine
+register `fs`. We should also use the same method. `fs` will point to the start
+of the TLS and then we know the offset for each variable we're interested in.

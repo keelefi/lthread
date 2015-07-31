@@ -13,8 +13,8 @@ For each thread we need to allocate memory using `mmap(2)`. This area will be
 contain:
 
   * The normal stack frames.
-  * A guard area set with `mprotect(2)` to `PROT_NONE` so that if the stack
-    grows over we get a `SIGSEGV` if our stack overflows.
+  * A guard area set with `mprotect(2)` to `PROT_NONE` so that we get a
+    `SIGSEGV` if our stack overflows.
   * Thread local storage area.
 
 ## How to access the TLS

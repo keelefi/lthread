@@ -6,7 +6,7 @@ There are several things to take care of:
   * Out of the compilers at least GCC supports a keyword `__thread` that will
     create thread local variables. Probably our implementation should support
     that too?
-  * errno is always a thread local variable.
+  * `errno` is always a thread local variable.
 
 The thread local storage will be set into a special area of our thread stack.
 For each thread we need to allocate memory using `mmap(2)`. This area will be

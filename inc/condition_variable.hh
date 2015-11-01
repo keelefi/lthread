@@ -15,7 +15,8 @@ public:
     void wait(lthread::mutex& mutex);
 
 private:
-    lthread::mutex m_mutex;
+    int m_seq_no_waiter;
+    int m_seq_no_wakeup;
 };
 
 } // namespace lthread

@@ -48,7 +48,8 @@ Required
 
 Required
 
-  * Implementation
+  * `broadcast()`
+  * Support for passing a predicate function to `wait()` in a similar fashion as `std::condition_variable::wait()` does
   * Tests
 
 ## thread

@@ -46,6 +46,8 @@ TEST_F(ConditionVariableTests, wait_for_condition_variable_from_other_thread)
     {
         m_condition_variable.wait(m_mutex);
     }
+
+    signalling_thread.join();
 }
 
 int main(int argc, char **argv)

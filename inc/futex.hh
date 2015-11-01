@@ -11,6 +11,7 @@ enum LOCK_STATE
 };
 
 int futex_wait(int *uaddr);
+int futex_wait(int *uaddr, int val);
 
 int futex_wake_one(int *uaddr);
 

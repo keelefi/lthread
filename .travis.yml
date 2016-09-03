@@ -1,23 +1,25 @@
 language: cpp
+sudo: false
+compiler: gcc
 
-compiler:
-  - gcc
-
-before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq update
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - libgtest-dev
+      - valgrind
 
 install:
-  - sudo apt-get -qq install g++-5
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
-  - sudo apt-get -qq install valgrind
-  - sudo apt-get -qq install libgtest-dev
   - GIT_REPOSITORY=$(pwd)
-  - cd /usr/src/gtest
-  - sudo cmake .
-  - sudo make
-  - sudo mv libg* /usr/lib/
-  - cd $GIT_REPOSITORY
+  - GTEST_LOCATION=~/gtest
+  - mkdir "${GTEST_LOCATION}"
+  - cd "${GTEST_LOCATION}"
+  - cp -r "${GTEST_LOCATION}/*" ./
+  - cmake -DCMAKE_INSTALL_PREFIX:PATH=./ ./
+  - make
+  - cd "${GIT_REPOSITORY}"
 
 script:
   - mkdir bin

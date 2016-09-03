@@ -17,7 +17,7 @@ install:
   - GTEST_COMPILE_LOCATION=~/gtest
   - mkdir -p "${GTEST_COMPILE_LOCATION}"
   - cd "${GTEST_COMPILE_LOCATION}"
-  - cp -r "${LIBGTESTDEV_LOCATION}/*" ./
+  - cp -r "${LIBGTESTDEV_LOCATION}"/* ./
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=./ ./
   - make
   - cd "${GIT_REPOSITORY}"

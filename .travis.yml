@@ -20,6 +20,7 @@ install:
   - cp -r "${LIBGTESTDEV_LOCATION}"/* ./
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=./ ./
   - make
+  - export LIBRARY_PATH="${GTEST_COMPILE_LOCATION}:${LIBRARY_PATH}"
   - cd "${GIT_REPOSITORY}"
 
 script:

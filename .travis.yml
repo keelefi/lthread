@@ -13,11 +13,11 @@ addons:
 
 install:
   - GIT_REPOSITORY=$(pwd)
-  - LIBGTESTDEV_LOCATION=/usr/src/gtest
-  - GTEST_COMPILE_LOCATION=~/gtest
-  - mkdir -p "${GTEST_COMPILE_LOCATION}"
-  - cd "${GTEST_COMPILE_LOCATION}"
-  - cp -r "${LIBGTESTDEV_LOCATION}"/* ./
+  - LIBGTESTDEV_SRC_LOCATION=/usr/src/gtest
+  - GTEST_LOCATION=~/gtest
+  - mkdir -p "${GTEST_LOCATION}"
+  - cd "${GTEST_LOCATION}"
+  - cp -r "${LIBGTESTDEV_SRC_LOCATION}"/* ./
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=./ ./
   - make
   - cd "${GIT_REPOSITORY}"
@@ -25,7 +25,7 @@ install:
 script:
   - mkdir bin
   - cd bin
-  - cmake -DCMAKE_LIBRARY_PATH="${GTEST_COMPILE_LOCATION}" ..
+  - cmake -DCMAKE_LIBRARY_PATH="${GTEST_LOCATION}" ..
   - cd ..
   - make -Cbin VERBOSE=1
   - make -Cbin test

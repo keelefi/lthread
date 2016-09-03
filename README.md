@@ -9,7 +9,7 @@ anyone wanting to learn about synchronization primitives. You can think of the
 
 # Prerequisites
 
-* C++11 (tested with GCC 4.9)
+* C++11 (tested with GCC 5.4)
 * GoogleTest
 * valgrind for testing
 * CMake

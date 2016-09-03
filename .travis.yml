@@ -27,5 +27,5 @@ script:
   - cd bin
   - cmake -DCMAKE_LIBRARY_PATH="${GTEST_COMPILE_LOCATION}" ..
   - cd ..
-  - make -Cbin
+  - make -Cbin VERBOSE=1
   - make -Cbin test
